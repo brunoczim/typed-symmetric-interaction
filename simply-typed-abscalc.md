@@ -1,9 +1,10 @@
-The syntax of terms is the same as in [abstract calculus](https://github.com/MaiaVictor/abstract-calculus).
-Reductionn rules are the same as in [abstract calculus](https://github.com/MaiaVictor/abstract-calculus).
+The syntax of terms is the same as in the original [abstract calculus](https://github.com/MaiaVictor/abstract-calculus).
+Reduction rules are the same as in the original ac.
+As in the original ac, variables can only be used once.
 
 # Syntax
 
-```idris
+```haskell
 type ::=
   | type → type                  -- function
   | (type, type)                 -- pair
@@ -15,6 +16,7 @@ term ::=
   | (term,term)                  -- superposition (pair)
   | let (p, q) = term in term    -- definition (let)
   | x                            -- variable
+  | ...                          -- additional terms associated with types (such as integer literals)
 
 proposition ::=
   | term : type                  -- annotation
