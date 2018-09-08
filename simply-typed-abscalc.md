@@ -24,7 +24,7 @@ proposition ::=
 ```
 
 # Typing Rules
-```
+```haskell
 -- abstraction
 -- x must be a variable
 -- t must be a term
