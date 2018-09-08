@@ -34,12 +34,11 @@ x : a ⊢ t : b
 (λx. t) : a → b
 
 -- application
--- x must be a variable
 -- t and u must be terms
 -- a and b must be types
-(λx. t) : a → b, u : a
+t : a → b, u : a
 ──────────────────────
-((λx. t) u) : b
+(t u) : b
 
 -- pair
 -- t and u must be terms
