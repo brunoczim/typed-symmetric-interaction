@@ -72,7 +72,7 @@ p : (a → b, a → c), t : a
 p t : (b, c)
 
 -- conclusion
--- r and s must be statements
+-- r and s must be propositions
 r
 ─
 s
