@@ -1,6 +1,6 @@
 The syntax of terms is the same as in the original [abstract calculus](https://github.com/MaiaVictor/abstract-calculus).
 Reduction rules are the same as in the original ac.
-As in the original ac, variables can only be used once.
+As in the original ac, variables can only be used once and are global.
 
 # Syntax
 
@@ -13,10 +13,11 @@ type ::=
 term ::=
   | λx. term                     -- abstraction (affine function)
   | (term term)                  -- application
-  | (term,term)                  -- superposition (pair)
+  | (term, term)                 -- superposition (pair)
   | let (p, q) = term in term    -- definition (let)
   | x                            -- variable
-  | ...                          -- additional terms associated with types (such as integer literals)
+  | ...                          -- additional terms associated with constant types
+                                 -- (such as integer literals associated with `int`)
 
 proposition ::=
   | term : type                  -- annotation
