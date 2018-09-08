@@ -16,7 +16,7 @@ term ::=
   | (term, term)                 -- superposition (pair)
   | let (p, q) = term in term    -- definition (let)
   | x                            -- variable
-  | ...                          -- additional terms associated with constant types
+  | ...                          -- additional terms associated with type constants
                                  -- (such as integer literals associated with `int`)
 
 proposition ::=
