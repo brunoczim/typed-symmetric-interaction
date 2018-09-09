@@ -116,7 +116,7 @@ r ⊢ s
 ```haskell
 theorem (λx. x) : a → a
 ───────────────────────
-1. | x : a              -- subproof hipothesis
+1. | x : a              -- subproof hypothesis
 2. x : a ⊢ x : a        -- subproof 1─1
 3. (λx. x) : a → a      -- abstraction 2
 ```
@@ -125,8 +125,8 @@ theorem (λx. x) : a → a
 ```haskell
 theorem (λf. λx. f x) : (a → a) → a → a
 ───────────────────────────────────────
-1. | f : a → a                          -- subproof hipothesis
-2. | | x : a                            -- subproof hipothesis
+1. | f : a → a                          -- subproof hypothesis
+2. | | x : a                            -- subproof hypothesis
 3. | | (f x) : a                        -- application 1, 2
 4. | x : a ⊢ (f x) : a                  -- subproof 2─3
 5. | (λx. f x) : a → a                  -- abstraction 4
@@ -138,9 +138,9 @@ theorem (λf. λx. f x) : (a → a) → a → a
 ```haskell
 theorem (λf. λx. let (g, h) = f in h (g x)) : (a → a) → a → a
 ──────────────────────────────────────────────────────────────
-1.  | f : a → a                                                -- subproof hipothesis
-2.  | | x : a                                                  -- subproof hipothesis
-3.  | | | g : a → a, h : a → a                                 -- subproof hipothesis
+1.  | f : a → a                                                -- subproof hypothesis
+2.  | | x : a                                                  -- subproof hypothesis
+3.  | | | g : a → a, h : a → a                                 -- subproof hypothesis
 4.  | | | g : a → a                                            -- simplification 3
 5.  | | | h : a → a                                            -- simplification 3
 6.  | | | (g x) : a                                            -- application 4, 2
