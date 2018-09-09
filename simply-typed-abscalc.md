@@ -106,7 +106,7 @@ r
 ...
 ───
 s
-──────
+───────
 r ⊢ s
 ```
 
@@ -117,7 +117,7 @@ r ⊢ s
 theorem (λx. x) : a → a
 ───────────────────────
 1. | x : a              -- subproof hipothesis
-2. x : a ⊢ x : a       -- subproof 1─1
+2. x : a ⊢ x : a        -- subproof 1─1
 3. (λx. x) : a → a      -- abstraction 2
 ```
 
