@@ -21,12 +21,12 @@ term ::=
 
 proposition ::=
   | term : type                  -- annotation
-  | proposition, proposition     -- sequence
-  | proposition ⊢ proposition    -- conclusion
+  | proposition, proposition     -- conjunction, sequence
+  | proposition ⊢ proposition    -- proved material implication, conclusion, entails
 
 ```
 
-# Typing Rules
+# Deduction/Typing Rules
 ```haskell
 -- context
 -- x must be a term
@@ -47,14 +47,22 @@ x : a ⊢ t : b
 -- application
 -- t and u must be terms
 -- a and b must be types
-t : a → b, u : a
-────────────────
+t : a → b   u : a
+─────────────────
 (t u) : b
+
+-- lambda projection
+-- x and y must be variables
+-- f and t must be terms
+-- a and b must be types
+f : a → b    x : a → b, y : a → b ⊢ t : c
+──────────────────────────────────────────
+(let (x, y) = f in t) : c
 
 -- pair
 -- t and u must be terms
 -- a and b must be types
-t : a, u : b
+t : a   u : b
 ───────────────
 (t, u) : (a, b)
 
@@ -62,36 +70,41 @@ t : a, u : b
 -- x and y must be variables
 -- p and t must be terms
 -- a and b must be types
-p : (a, b), (x : a, y : b ⊢ t : c)
+p : (a, b)   x : a, y : b ⊢ t : c
 ───────────────────────────────────
 (let (x, y) = p in t) : c
-
--- lambda projection
--- x and y must be variables
--- f and t must be terms
--- a and b must be types
-f : a → b, (x : a → b, y : a → b ⊢ t : c)
-──────────────────────────────────────────
-(let (x, y) = f in t) : c
 
 -- pair application
 -- p and t must be terms
 -- a, b, c must be types
-p : (a → b, a → c), t : a
-─────────────────────────
+p : (a → b, a → c)   t : a
+───────────────────────────
 p t : (b, c)
 
 -- modus ponens
 -- r and s must be propositions
-r, r ⊢ s
-─────────
+r   r ⊢ s
+──────────
 s
 
--- conclusion
+-- simplification
 -- r and s must be propositions
--- this is not exactly a rule, it may be implicit, but I wanted to show it.
+r, s
+─────
+r   s
+
+-- conjunction
+-- r and s must be propositions
+r   s
+─────
+r, s
+
+-- subproof, conclusion
+-- r and s must be propositions
 r
-─
+───
+...
+───
 s
 ──────
 r ⊢ s
@@ -104,9 +117,8 @@ r ⊢ s
 theorem (λx. x) : a → a
 ───────────────────────
 1. | x : a              -- subproof hipothesis
-2. | x : a              -- context 1
-3. x : a ⊢ x : a       -- subproof 1─2
-4. (λx. x) : a → a      -- abstraction 3
+2. x : a ⊢ x : a       -- subproof 1─1
+3. (λx. x) : a → a      -- abstraction 2
 ```
 
 ## One function
@@ -115,26 +127,28 @@ theorem (λf. λx. f x) : (a → a) → a → a
 ───────────────────────────────────────
 1. | f : a → a                          -- subproof hipothesis
 2. | | x : a                            -- subproof hipothesis
-3. | | (f x) : a → a                    -- application 1, 2
-4. | x : a ⊢ (f x) : a → a              -- subproof 2─3
+3. | | (f x) : a                        -- application 1, 2
+4. | x : a ⊢ (f x) : a                  -- subproof 2─3
 5. | (λx. f x) : a → a                  -- abstraction 4
 6. f : a → a ⊢ (λx. f x) : a → a        -- subproof 1─5
 7. (λf. λx. f x) : (a → a) → a → a      -- abstraction 6
 ```
+
 ## Two function
 ```haskell
-theorem (λf. λx. let (g, h) = f in g (h x)) : (a → a) → a → a
+theorem (λf. λx. let (g, h) = f in h (g x)) : (a → a) → a → a
 ──────────────────────────────────────────────────────────────
-1.  | f : a → a                                                  -- subproof hipothesis
-2.  | | x : a                                                    -- subproof hipothesis
-3.  | | | g : a → a                                              -- subproof hipothesis
-4.  | | | h : a → a                                              -- subproof hipothesis
-5.  | | | (h x) : a                                              -- application 4, 2
-6.  | | | (g (h x)) : a                                          -- application 3, 5
-7.  | | g : a → a, h : a → a ⊢ (g (h x)) : a                     -- subproof 3─6
-8.  | | (let (g, h) = f in g (h x)) : a                          -- lambda projection 1, 7
-9.  | x : a ⊢ (let (g, h) = f in g (h x)) : a                    -- subproof 2─8
-10. | (λx. let (g, h) = f in g (h x)) : a → a                    -- abstraction 9
-11. f : a → a ⊢ (λx. let (g, h) = f in g (h x)) : a → a          -- subproof 1─10
-12. (λf. λx. let (g, h) = f in g (h x)) : (a → a) → a → a        -- abstraction 11
+1.  | f : a → a                                                -- subproof hipothesis
+2.  | | x : a                                                  -- subproof hipothesis
+3.  | | | g : a → a, h : a → a                                 -- subproof hipothesis
+4.  | | | g : a → a                                            -- simplification 3
+5.  | | | h : a → a                                            -- simplification 3
+6.  | | | (g x) : a                                            -- application 4, 2
+7.  | | | (h (g x)) : a                                        -- application 6
+8.  | | g : a → a, h : a → a ⊢ (h (g x)) : a                   -- subproof 3─7
+9.  | | (let (g, h) = f in h (g x)) : a                        -- lambda projection 1, 8
+10. | x : a ⊢ (let (g, h) = f in h (g x)) : a                  -- subproof 2─9
+11. | (λx. let (g, h) = f in h (g x)) : a → a                  -- abstraction 10
+12. f : a → a ⊢ (λx. let (g, h) = f in h (g x)) : a → a        -- subproof 1─11
+13. (λf. λx. let (g, h) = f in h (g x)) : (a → a) → a → a      -- abstraction 12
 ```
