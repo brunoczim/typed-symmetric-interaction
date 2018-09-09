@@ -75,6 +75,7 @@ p t : (b, c)
 
 -- conclusion
 -- r and s must be propositions
+-- this is not exactly a rule, it may be implicit, but I wanted to show it.
 r
 ─
 s
