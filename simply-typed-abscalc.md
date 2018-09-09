@@ -95,22 +95,23 @@ r ⊢ s
 
 ## Id function
 ```haskell
-x : a
-───── context
-x : a ⊢ x : a
-─────────────── abstraction
-(λx. x) : a → a
+theorem (λx. x) : a → a
+───────────────────────
+1. | x : a              -- subproof hipothesis
+2. | x : a              -- context 1
+3. x : a ⊢ x : a       -- subproof 1─2
+4. (λx. x) : a → a      -- abstraction 3
 ```
 
 ## One function
 ```haskell
-f : a → a, x : a
-──────────────── application
-(f x) : a
-───────── conclusion
-f : a → a, x : a ⊢ (f x) : a
-────────────────────────────── abstraction
-f : a → a ⊢ (λx. f x) : a → a
-─────────────────────────────── abstraction
-(λf. λx. f x) : (a → a) → a → a
+theorem (λf. λx. f x) : (a → a) → a → a
+───────────────────────────────────────
+1. | f : a → a                          -- subproof hipothesis
+2. | | x : a                            -- subproof hipothesis
+3. | | (f x) : a → a                    -- application 1, 2
+4. | x : a ⊢ (f x) : a → a              -- subproof 2─3
+5. | (λx. f x) : a → a                  -- abstraction 4
+6. f : a → a ⊢ (λx. f x) : a → a        -- subproof 1─5
+7. (λf. λx. f x) : (a → a) → a → a      -- abstraction 6
 ```
