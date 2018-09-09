@@ -1,18 +1,28 @@
 module SimplyTypedAc
 
+import Data.Vect
+
 data Ty : Type where
   Fun   : Ty -> Ty -> Ty
-  Pair  : Ty -> Ty -> Ty
+  Prod  : Ty -> Ty -> Ty
   Const : Type -> Ty
 
-data Sym : Ty -> Type where
-  Ident : String -> (a : Ty) -> Sym a
+data Sym : Type where
+  Ident : String -> Ty -> Sym
 
-data Term : Ty -> Type where
-  Lam  : Sym a -> Term b -> Term (Fun a b)
-  App  : Term (Fun a b) -> Term a -> Term b
-  Pair : Term a -> Term b -> Term (Pair a b)
-  LetP : Sym a -> Sym b -> Term (Pair a b) -> Term c -> Term c
-  LetF : Sym (Fun a b) -> Sym (Fun a b) -> Term (Fun a b) -> Term c -> Term c
-  Var  : Sym a -> Term a
-  Ext  : a -> Term (Const a)
+data Term : Vect n Sym -> Ty -> Type where
+  Var     : Elem (Ident _ a) xs -> Term xs a
+  Lam     : Elem (Ident _ a) xs -> Term xs b -> Term xs (Fun a b)
+  App     : Term xs (Fun a b) -> Term xs a -> Term xs b
+  Pair    : Term xs a -> Term xs b -> Term xs (Prod a b)
+  LetPair : Elem (Ident _ a) xs
+    -> Elem (Ident _ b) xs
+    -> Term xs (Prod a b)
+    -> Term xs c
+    -> Term xs c
+  LetLam  : Elem (Ident _ (Fun a b)) xs
+    -> Elem (Ident _ (Fun a b)) xs
+    -> Term xs (Fun a b)
+    -> Term xs c
+    -> Term xs c
+  Ext     : a -> Term xs (Const a)
