@@ -6,16 +6,16 @@ As in the original ac, variables can only be used once and are global.
 
 ```haskell
 type ::=
+  | a                            -- constant
   | type → type                  -- function
   | (type, type)                 -- pair
-  | a                            -- constant
 
 term ::=
+  | x                            -- variable
   | λx. term                     -- abstraction (affine function)
   | (term term)                  -- application
   | (term, term)                 -- superposition (pair)
   | let (p, q) = term in term    -- definition (let)
-  | x                            -- variable
   | ...                          -- additional terms associated with type constants
                                  -- (such as integer literals associated with `int`)
 
@@ -28,6 +28,14 @@ proposition ::=
 
 # Typing Rules
 ```haskell
+-- context
+-- x must be a term
+-- a must be a type
+-- s must be a proposition
+x : a ∈ s
+───────────
+s ⊢ x : a
+
 -- abstraction
 -- x must be a variable
 -- t must be a term
@@ -81,4 +89,28 @@ r
 s
 ──────
 r ⊢ s
+```
+
+# Examples
+
+## Id function
+```haskell
+x : a
+───── context
+x : a ⊢ x : a
+─────────────── abstraction
+(λx. x) : a → a
+```
+
+## One function
+```haskell
+f : a → a, x : a
+──────────────── application
+(f x) : a
+───────── conclusion
+f : a → a, x : a ⊢ (f x) : a
+────────────────────────────── abstraction
+f : a → a ⊢ (λx. f x) : a → a
+─────────────────────────────── abstraction
+(λf. λx. f x) : (a → a) → a → a
 ```
