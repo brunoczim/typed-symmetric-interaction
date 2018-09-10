@@ -37,20 +37,13 @@ proposition ::=
 
 ```
 
-# Predicates for Deduction Constraints
+# Predicates and Sets for Deduction Constraints
 
 These properties are necessary only for verifying rules
 and are derived by just observing the syntax of the propositions.
 
 ```haskell
 in(proposition, proposition)                 -- is read "P is intensionally in Q"
-
-free(type)                                   -- free variables and constants of the type, where:
-    free(variable A) = { A }
-    free(specialization A B) = free(A) ∪ free(B)
-    free(function A → B) = free(A) ∪ free(B)
-    free(pair (A, B)) = free(A) ∪ free(B)
-    free(universal ∀A. B) = free(B) - { A }
 
 quantified(type)                             -- quantified type variables of the type
     quantified(universal ∀A. B) = { A } ∪ quantified(B)
