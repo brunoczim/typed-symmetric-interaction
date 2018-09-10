@@ -32,7 +32,7 @@ These properties are necessary only for verifying rules
 and are derived by just observing the syntax of the propositions.
 
 ```
-in(proposition, proposition)                  -- is read "P is intensionally in Q"
+in(proposition, proposition)                 -- is read "P is intensionally in Q"
 ```
 
 # Deduction/Typing Rules
