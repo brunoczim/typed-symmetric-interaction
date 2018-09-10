@@ -26,7 +26,7 @@ proposition ::=
 
 ```
 
-# Extra Syntax for Deduction
+# Predicates for Deduction Constraints
 
 These properties are necessary only for verifying rules
 and are derived by just observing the syntax of the propositions.

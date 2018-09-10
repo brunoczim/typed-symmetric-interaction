@@ -33,7 +33,7 @@ proposition ::=
 
 ```
 
-# Extra Syntax for Deduction
+# Predicates for Deduction Constraints
 
 These properties are necessary only for verifying rules
 and are derived by just observing the syntax of the propositions.
@@ -122,14 +122,14 @@ x : ∀U. T
 -- U and V must be type variables
 ∀U. T   V ∉ quantified(U)
 ──────────────────────────
-T{ U ↦V }
+T{ U ↦ V }
 
 -- renaming
 -- T must be a type
 -- U and V must be type variables
 ∀U. T   V ∉ quantified(U)
 ──────────────────────────
-∀V. T{ U ↦V }
+∀V. T{ U ↦ V }
 
 -- modus ponens
 -- P and Q must be propositions
