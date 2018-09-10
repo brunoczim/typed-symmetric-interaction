@@ -117,16 +117,17 @@ p e : (B, C)
 
 -- generalization
 -- x must be an expression
--- T and U must be types
+-- T must be a type
+-- U must be a type variable
 x : T   U ∉ Constants
 ──────────────────────
 x : ∀U. T
 
 -- specialization
--- T must be a type
--- U and V must be type variables
-∀U. T   V ∉ quantified(T)
-──────────────────────────
+-- T and V must be types
+-- U must be a type variable
+∀U. T   ∀A ∈ quantified(T). ¬in(A, V)
+──────────────────────────────────────
 T{ U ↦ V }
 
 -- modus ponens
@@ -169,4 +170,27 @@ theorem (λx. x) : ∀A. A → A
 2. x : A ⊢ x : A           -- subproof 1─1
 3. (λx. x) : A → A          -- abstraction 2
 4. (λx. x) : ∀A. A → A      -- generalization 3
+```
+
+## Maybe Functor
+```haskell
+JUST := λx. λf. λg. f x : ∀A. ∀B. A → (A → B) → B → B
+NOTHING := λy. λh. λi. i : ∀A. ∀B. A → (A → B) → B → B
+```
+
+```haskell
+theorem (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B
+────────────────────────────────────────────────────────
+1.  | x : A                                              -- subproof hypothesis
+2.  | | f : A → B                                        -- subproof hypothesis
+3.  | | | g : B                                          -- subproof hypothesis
+4.  | | | (f x) : B                                      -- application 2, 1
+5.  | | g : B ⊢ (f x) : B                                -- subproof 3─4
+6.  | | (λg. f x) : B → B                                -- abstraction 5
+7.  | f : A → B ⊢ (λg. f x) : B → B                      -- subproof 2─6
+8.  | (λf. λg. f x) : (A → B) → B → B                    -- abstraction 7
+9.  x : A ⊢ (λf. λg. f x) : (A → B) → B → B              -- subproof 1─8
+10. (λx. λf. λg. f x) : A → (A → B) → B → B              -- abstraction 9
+11. (λx. λf. λg. f x) : ∀B. A → (A → B) → B → B          -- generalization 10
+12. (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B      -- generalization 11
 ```
