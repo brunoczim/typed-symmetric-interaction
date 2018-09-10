@@ -113,8 +113,8 @@ p e : (B, C)
 -- generalization
 -- x must be an expression
 -- T and U must be types
-x : T   U ∉ free(T)
-────────────────────
+x : T
+──────────
 x : ∀U. T
 
 -- specialization
@@ -158,4 +158,17 @@ P
 Q
 ───────
 P ⊢ Q
+```
+
+# Examples
+
+## Id function
+
+```haskell
+theorem (λx. x) : ∀A. A → A
+────────────────────────────
+1. | x : A                  -- subproof hypothesis
+2. x : A ⊢ x : A           -- subproof 1─1
+3. (λx. x) : A → A          -- abstraction 2
+4. (λx. x) : ∀A. A → A      -- generalization 3
 ```
