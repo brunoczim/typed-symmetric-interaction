@@ -1,6 +1,10 @@
 The syntax of terms is the same as in the original [abstract calculus](https://github.com/MaiaVictor/abstract-calculus).
 Reduction rules are the same as in the original ac.
 As in the original ac, variables can only be used once and are global.
+The scope of quantified type variables, however, is not global,
+and a new quantification with a previously quantified variable
+always shadows the previous quantification.
+
 
 # Syntax
 ```haskell
@@ -52,6 +56,7 @@ quantified(type)                             -- quantified type variables of the
     quantified(universal ∀A. B) = { A } ∪ quantified(B)
     quantified(_) = {}
 
+Constants                                    -- the set of all type constants
 ```
 
 # Deduction/Typing Rules
@@ -113,23 +118,16 @@ p e : (B, C)
 -- generalization
 -- x must be an expression
 -- T and U must be types
-x : T
-──────────
+x : T   U ∉ Constants
+──────────────────────
 x : ∀U. T
 
 -- specialization
 -- T must be a type
 -- U and V must be type variables
-∀U. T   V ∉ quantified(U)
+∀U. T   V ∉ quantified(T)
 ──────────────────────────
 T{ U ↦ V }
-
--- renaming
--- T must be a type
--- U and V must be type variables
-∀U. T   V ∉ quantified(U)
-──────────────────────────
-∀V. T{ U ↦ V }
 
 -- modus ponens
 -- P and Q must be propositions
