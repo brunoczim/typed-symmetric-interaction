@@ -6,7 +6,7 @@ As in the original ac, variables can only be used once and are global.
 
 ```haskell
 type ::=
-  | a                            -- constant
+  | A                            -- constant
   | type → type                  -- function
   | (type, type)                 -- pair
 
@@ -17,7 +17,7 @@ term ::=
   | (term, term)                 -- superposition (pair)
   | let (p, q) = term in term    -- definition (let)
   | ...                          -- additional terms associated with type constants
-                                 -- (such as integer literals associated with `int`)
+                                 --   (such as integer literals associated with `Int`)
 
 proposition ::=
   | term : type                  -- annotation
@@ -30,125 +30,125 @@ proposition ::=
 ```haskell
 -- context
 -- x must be a term
--- a must be a type
--- s must be a proposition
-x : a ∈ s
+-- A must be a type
+-- P must be a proposition
+x : A ∈ P
 ──────────
-s ⊢ x : a
+P ⊢ x : A
 
 -- abstraction
 -- x must be a variable
 -- t must be a term
--- a and b must be types
-x : a ⊢ t : b
+-- A and B must be types
+x : A ⊢ t : B
 ───────────────
-(λx. t) : a → b
+(λx. t) : A → B
 
 -- application
--- t and u must be terms
--- a and b must be types
-t : a → b   u : a
+-- f and t must be terms
+-- A and B must be types
+f : A → B   t : A
 ─────────────────
-(t u) : b
+(f t) : B
 
 -- lambda projection
 -- x and y must be variables
 -- f and t must be terms
--- a and b must be types
-f : a → b    x : a → b, y : a → b ⊢ t : c
+-- A, B and C must be types
+f : A → B    x : A → B, y : A → B ⊢ t : C
 ──────────────────────────────────────────
-(let (x, y) = f in t) : c
+(let (x, y) = f in t) : C
 
 -- pair
 -- t and u must be terms
--- a and b must be types
-t : a   u : b
+-- A and B must be types
+t : A   u : B
 ───────────────
-(t, u) : (a, b)
+(t, u) : (A, B)
 
 -- pair projection
 -- x and y must be variables
 -- p and t must be terms
--- a and b must be types
-p : (a, b)   x : a, y : b ⊢ t : c
+-- A, B and C must be types
+p : (A, B)   x : A, y : B ⊢ t : C
 ───────────────────────────────────
-(let (x, y) = p in t) : c
+(let (x, y) = m in t) : C
 
 -- pair application
 -- p and t must be terms
--- a, b, c must be types
-p : (a → b, a → c)   t : a
+-- A, B and C must be types
+p : (A → B, A → C)   t : A
 ───────────────────────────
-p t : (b, c)
+p t : (B, C)
 
 -- modus ponens
--- r and s must be propositions
-r   r ⊢ s
+-- P and Q must be propositions
+P   P ⊢ Q
 ──────────
-s
+Q
 
 -- simplification
--- r and s must be propositions
-r, s
+-- P and Q must be propositions
+P, Q
 ─────
-r   s
+P   Q
 
 -- conjunction
--- r and s must be propositions
-r   s
+-- P and Q must be propositions
+P   Q
 ─────
-r, s
+P, Q
 
 -- subproof, conclusion
--- r and s must be propositions
-r
+-- P and Q must be propositions
+P
 ───
 ...
 ───
-s
+Q
 ───────
-r ⊢ s
+P ⊢ Q
 ```
 
 # Examples
 
 ## Id function
 ```haskell
-theorem (λx. x) : a → a
-───────────────────────
-1. | x : a              -- subproof hypothesis
-2. x : a ⊢ x : a        -- subproof 1─1
-3. (λx. x) : a → a      -- abstraction 2
+theorem (λx. x) : A → A
+────────────────────────
+1. | x : A              -- subproof hypothesis
+2. x : A ⊢ x : A        -- subproof 1─1
+3. (λx. x) : A → A      -- abstraction 2
 ```
 
 ## One function
 ```haskell
-theorem (λf. λx. f x) : (a → a) → a → a
-───────────────────────────────────────
-1. | f : a → a                          -- subproof hypothesis
-2. | | x : a                            -- subproof hypothesis
-3. | | (f x) : a                        -- application 1, 2
-4. | x : a ⊢ (f x) : a                  -- subproof 2─3
-5. | (λx. f x) : a → a                  -- abstraction 4
-6. f : a → a ⊢ (λx. f x) : a → a        -- subproof 1─5
-7. (λf. λx. f x) : (a → a) → a → a      -- abstraction 6
+theorem (λf. λx. f x) : (A → A) → A → A
+────────────────────────────────────────
+1. | f : A → A                          -- subproof hypothesis
+2. | | x : A                            -- subproof hypothesis
+3. | | (f x) : A                        -- application 1, 2
+4. | x : A ⊢ (f x) : A                  -- subproof 2─3
+5. | (λx. f x) : A → A                  -- abstraction 4
+6. f : A → A ⊢ (λx. f x) : A → A        -- subproof 1─5
+7. (λf. λx. f x) : (A → A) → A → A      -- abstraction 6
 ```
 
 ## Two function
 ```haskell
-theorem (λf. λx. let (g, h) = f in h (g x)) : (a → a) → a → a
+theorem (λf. λx. let (g, h) = f in h (g x)) : (A → A) → A → A
 ──────────────────────────────────────────────────────────────
-1.  | f : a → a                                                -- subproof hypothesis
-2.  | | x : a                                                  -- subproof hypothesis
-3.  | | | g : a → a, h : a → a                                 -- subproof hypothesis
-4.  | | | g : a → a                                            -- simplification 3
-5.  | | | h : a → a                                            -- simplification 3
-6.  | | | (g x) : a                                            -- application 4, 2
-7.  | | | (h (g x)) : a                                        -- application 6
-8.  | | g : a → a, h : a → a ⊢ (h (g x)) : a                   -- subproof 3─7
-9.  | | (let (g, h) = f in h (g x)) : a                        -- lambda projection 1, 8
-10. | x : a ⊢ (let (g, h) = f in h (g x)) : a                  -- subproof 2─9
-11. | (λx. let (g, h) = f in h (g x)) : a → a                  -- abstraction 10
-12. f : a → a ⊢ (λx. let (g, h) = f in h (g x)) : a → a        -- subproof 1─11
-13. (λf. λx. let (g, h) = f in h (g x)) : (a → a) → a → a      -- abstraction 12
+1.  | f : A → A                                                -- subproof hypothesis
+2.  | | x : A                                                  -- subproof hypothesis
+3.  | | | g : A → A, h : A → A                                 -- subproof hypothesis
+4.  | | | g : A → A                                            -- simplification 3
+5.  | | | h : A → A                                            -- simplification 3
+6.  | | | (g x) : A                                            -- application 4, 2
+7.  | | | (h (g x)) : A                                        -- application 6
+8.  | | g : A → A, h : A → A ⊢ (h (g x)) : A                   -- subproof 3─7
+9.  | | (let (g, h) = f in h (g x)) : A                        -- lambda projection 1, 8
+10. | x : A ⊢ (let (g, h) = f in h (g x)) : A                  -- subproof 2─9
+11. | (λx. let (g, h) = f in h (g x)) : A → A                  -- abstraction 10
+12. f : A → A ⊢ (λx. let (g, h) = f in h (g x)) : A → A        -- subproof 1─11
+13. (λf. λx. let (g, h) = f in h (g x)) : (A → A) → A → A      -- abstraction 12
 ```
