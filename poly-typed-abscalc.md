@@ -3,12 +3,19 @@ Reduction rules are the same as in the original ac.
 As in the original ac, variables can only be used once and are global.
 
 # Syntax
-
 ```haskell
 type ::=
-  | A                                        -- constant
-  | type → type                              -- function
-  | (type, type)                             -- pair
+ | mono                                      -- simple type
+ | poly                                      -- polymorphic type
+
+mono ::=
+  | A                                        -- variable, constant
+  | mono mono                                -- specialization
+  | mono → mono                              -- function
+  | (mono, mono)                             -- pair
+
+poly ::=
+  | ∀T. type                                 -- universal quantification over types
 
 expression ::=
   | x                                        -- variable
@@ -33,6 +40,18 @@ and are derived by just observing the syntax of the propositions.
 
 ```
 in(proposition, proposition)                  -- is read "P is intensionally in Q"
+
+free(type)                                    -- free variables and constants of the type, where:
+    free(variable A) = { A }
+    free(specialization A B) = free(A) ∪ free(B)
+    free(function A → B) = free(A) ∪ free(B)
+    free(pair (A, B)) = free(A) ∪ free(B)
+    free(universal ∀A. B) = free(B) - { A }
+
+quantified(type)                             -- quantified type variables of the type
+    quantified(universal ∀A. B) = { A } ∪ quantified(B)
+    quantified(_) = {}
+
 ```
 
 # Deduction/Typing Rules
@@ -91,6 +110,27 @@ p : (A → B, A → C)   e : A
 ───────────────────────────────
 p e : (B, C)
 
+-- generalization
+-- x must be an expression
+-- T and U must be types
+x : T   U ∉ free(T)
+────────────────────
+x : ∀U. T
+
+-- specialization
+-- T must be a type
+-- U and V must be type variables
+∀U. T   V ∉ quantified(U)
+──────────────────────────
+T{ U ↦V }
+
+-- renaming
+-- T must be a type
+-- U and V must be type variables
+∀U. T   V ∉ quantified(U)
+──────────────────────────
+∀V. T{ U ↦V }
+
 -- modus ponens
 -- P and Q must be propositions
 P   P ⊢ Q
@@ -118,48 +158,4 @@ P
 Q
 ───────
 P ⊢ Q
-```
-
-# Examples
-
-## Id function
-
-```haskell
-theorem (λx. x) : A → A
-────────────────────────
-1. | x : A              -- subproof hypothesis
-2. x : A ⊢ x : A        -- subproof 1─1
-3. (λx. x) : A → A      -- abstraction 2
-```
-
-## One function
-```haskell
-theorem (λf. λx. f x) : (A → A) → A → A
-────────────────────────────────────────
-1. | f : A → A                          -- subproof hypothesis
-2. | | x : A                            -- subproof hypothesis
-3. | | (f x) : A                        -- application 1, 2
-4. | x : A ⊢ (f x) : A                  -- subproof 2─3
-5. | (λx. f x) : A → A                  -- abstraction 4
-6. f : A → A ⊢ (λx. f x) : A → A        -- subproof 1─5
-7. (λf. λx. f x) : (A → A) → A → A      -- abstraction 6
-```
-
-## Two function
-```haskell
-theorem (λf. λx. let (g, h) = f in h (g x)) : (A → A) → A → A
-──────────────────────────────────────────────────────────────
-1.  | f : A → A                                                -- subproof hypothesis
-2.  | | x : A                                                  -- subproof hypothesis
-3.  | | | g : A → A, h : A → A                                 -- subproof hypothesis
-4.  | | | g : A → A                                            -- simplification 3
-5.  | | | h : A → A                                            -- simplification 3
-6.  | | | (g x) : A                                            -- application 4, 2
-7.  | | | (h (g x)) : A                                        -- application 6
-8.  | | g : A → A, h : A → A ⊢ (h (g x)) : A                   -- subproof 3─7
-9.  | | (let (g, h) = f in h (g x)) : A                        -- lambda projection 1, 8
-10. | x : A ⊢ (let (g, h) = f in h (g x)) : A                  -- subproof 2─9
-11. | (λx. let (g, h) = f in h (g x)) : A → A                  -- abstraction 10
-12. f : A → A ⊢ (λx. let (g, h) = f in h (g x)) : A → A        -- subproof 1─11
-13. (λf. λx. let (g, h) = f in h (g x)) : (A → A) → A → A      -- abstraction 12
 ```
