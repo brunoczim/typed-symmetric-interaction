@@ -38,7 +38,7 @@ proposition ::=
 These properties are necessary only for verifying rules
 and are derived by just observing the syntax of the propositions.
 
-```
+```haskell
 in(proposition, proposition)                 -- is read "P is intensionally in Q"
 
 free(type)                                   -- free variables and constants of the type, where:
