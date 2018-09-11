@@ -71,7 +71,8 @@ A : A' ⊢ B : B', x : B
 A' : Type[n + 1]
 B' : Type[n + 1]
 A : A' → B'
-B : A'  t : A
+B : A'
+t : A
 ─────────────────────
 (A B) : B'   t : A B
 
