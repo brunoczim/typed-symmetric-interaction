@@ -43,8 +43,9 @@ proposition ::=
 Type[n] : Type[n + 1]
 
 -- constant
--- a must be a constant typable
 -- A must be a type
+-- a must be a constant typable
+A : Type[n]
 a is a constant of type A
 ──────────────────────────
 a : A
@@ -54,6 +55,13 @@ a : A
 A : Type[n]   B : Type[n]
 ─────────────────────────
 (A → B) : Type[n]
+
+-- function decomposition
+-- A and B must be types
+(A → B) : Type[n]
+──────────────────────────
+A : Type[n]   B : Type[n]
+
 
 -- generalization
 -- A', B' and B must be types
@@ -67,7 +75,7 @@ A : A' ⊢ B : B', t : B
 
 -- specialization
 -- A', A, B' and B must be types
--- t must be a typable and is optional
+-- t must be a typable
 A' : Type[n + 1]
 B' : Type[n + 1]
 A : A' → B'
@@ -103,7 +111,8 @@ x : A ⊢ e : B
 -- f and t must be typables
 A : Type[n]
 B : Type[n]
-f : A → B   t : A
+f : A → B
+t : A
 ─────────────────
 (f t) : B
 
@@ -128,6 +137,15 @@ e : A
 f : B
 ───────────────
 (e, f) : (A, B)
+
+-- pair decomposition
+-- e and f must be typables
+-- A and B must be types
+A : Type[n]
+B : Type[n]
+(e, f) : (A, B)
+───────────────
+e : A   f : B
 
 -- pair projection
 -- x and y must be variables
@@ -204,35 +222,67 @@ theorem (λx. x) : ∀A. A → A
 
 ### Just
 ```haskell
-theorem (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B
-────────────────────────────────────────────────────────
+theorem (∀A. ∀B. A → (A → B) → B → B) : Type[0] → Type[0] → Type[0],
+           (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B
+────────────────────────────────────────────────────────────────────
+1.  Type[0] : Type[1]                                                 -- type of types
+2.  Type[0] → Type[0] : Type[1]                                       -- function 1, 1
+3.  | A : Type[0]                                                     -- subproof hypothesis
+4.  | | B : Type[0]                                                   -- subproof hypothesis
+5.  | | (B → B) : Type[0]                                             -- function 4, 4
+6.  | | (A → B) : Type[0]                                             -- function 3, 4
+7.  | | ((A → B) → B → B) : Type[0]                                   -- function 6, 5
+8.  | | (A → (A → B) → B → B) : Type[0]                               -- function 3, 7
+9.  | | | x : A                                                       -- subproof hypothesis
+10. | | | | f : A → B                                                 -- subproof hypothesis
+11. | | | | | g : B                                                   -- subproof hypothesis
+12. | | | | | (f x) : B                                               -- application 3, 4, 10, 9
+13. | | | | g : B ⊢ (f x) : B                                         -- subproof 11─12
+14. | | | | (λg. f x) : B → B                                         -- abstraction 4, 4, 13
+15. | | | f : A → B ⊢ (λg. f x) : B → B                               -- subproof 10─14
+16. | | | (λf. λg. f x) : (A → B) → B → B                             -- abstraction 6, 5, 15
+17. | | x : A ⊢ (λf. λg. f x) : (A → B) → B → B                       -- subproof 9─16
+18. | | (λx. λf. λg. f x) : A → (A → B) → B → B                       -- abstraction 3, 7, 17
+19. | | (A → (A → B) → B → B) : Type[0],                              -- conjunction 8, 18
+          (λx. λf. λg. f x) : A → (A → B) → B → B
+20. | B : Type[0] ⊢ (A → (A → B) → B → B) : Type[0],                  -- subproof 4─19
+        (λx. λf. λg. f x) : A → (A → B) → B → B
+21. | (∀B. A → (A → B) → B → B) : Type[0] → Type[0],                  -- generalization 1, 1, 19
+        (λx. λf. λg. f x) : ∀B. A → (A → B) → B → B
+21. A : Type[0] ⊢ (∀B. A → (A → B) → B → B) : Type[0] → Type[0],      -- subproof 3─21
+      (λx. λf. λg. f x) : ∀B. A → (A → B) → B → B
+22. (∀A. ∀B. A → (A → B) → B → B) : Type[0] → Type[0] → Type[0],      -- generalization 1, 2, 21
+      (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B
+```
+
+### Just 3
+```haskell
+theorem ∀B. (Nat → B) → B → B : Type[0] → Type[0],
+          ((λx. λf. λg. g) 3) : ∀B. (Nat → B) → B → B
+──────────────────────────────────────────────────────────────
 1.  Type[0] : Type[1]                                             -- type of types
-2.  | A : Type[0]                                                 -- subproof hypothesis
-3.  | | B : Type[0]                                               -- subproof hypothesis
-4.  | | | x : A                                                   -- subproof hypothesis
-5.  | | | | f : A → B                                             -- subproof hypothesis
-6.  | | | | | g : B                                               -- subproof hypothesis
-7.  | | | | | (f x) : B                                           -- application 5, 4
-8.  | | | | g : B ⊢ (f x) : B                                     -- subproof 6─7
-9.  | | | | (λg. f x) : B → B                                     -- abstraction 8
-10. | | | f : A → B ⊢ (λg. f x) : B → B                           -- subproof 5─9
-11. | | | (λf. λg. f x) : (A → B) → B → B                         -- abstraction 10
-12. | | x : A ⊢ (λf. λg. f x) : (A → B) → B → B                   -- subproof 4─11
-13. | | (λx. λf. λg. f x) : A → (A → B) → B → B                   -- abstraction 12
-14. | | (A → B) : Type[0]                                         -- function 2, 3
-15. | | (B → B) : Type[0]                                         -- function 3, 3
-16. | | ((A → B) → B → B) : Type[0]                               -- function 14, 15
-17. | | (A → (A → B) → B → B) : Type[0]                           -- function 2, 16
-18. | | (A → (A → B) → B → B) : Type[0],
-          (λx. λf. λg. f x) : A → (A → B) → B → B                 -- conjunction 17, 13
-19. | B : Type[0] ⊢ (A → (A → B) → B → B) : Type[0],
-        (λx. λf. λg. f x) : A → (A → B) → B → B                   -- subproof 3─18
-20. | (∀B. A → (A → B) → B → B) : Type[0] → Type[0],
-        (λx. λf. λg. f x) : ∀B. A → (A → B) → B → B               -- generalization 1, 1, 19
-21. A : Type[0] ⊢ (∀B. A → (A → B) → B → B) : Type[0] → Type[0],
-      (λx. λf. λg. f x) : ∀B. A → (A → B) → B → B                 -- subproof 2─20
-22. Type[0] → Type[0] : Type[1]                                   -- function 1, 1
-22. (∀A. ∀B. A → (A → B) → B → B) : Type[0] → Type[0] → Type[0],
-      (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B             -- generalization 1, 22, 21
-23. (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B               -- simplification 22
+2.  Type[0] → Type[0] : Type[1]                                   -- function 1, 1
+3.  Nat : Type[0]                                                 -- constant 1
+4.  3 : Nat                                                       -- constant 3
+5.  (∀A. ∀B. A → (A → B) → B → B) : Type[0] → Type[0] → Type[0],  -- Just
+       (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B
+6.  (∀A. ∀B. A → (A → B) → B → B) : Type[0] → Type[0] → Type[0]   -- simplification 5
+7.  (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B               -- simplification 5
+8.  ((∀A. ∀B. A → (A → B) → B → B) Nat) : Type[0] → Type[0]       -- application 1, 2, 6, 3
+9.  (λx. λf. λg. f x) : (∀A. ∀B. A → (A → B) → B → B) Nat         -- specialization 1, 2, 6, 3, 7
+10. (∀B. Nat → (Nat → B) → B → B) : Type[0] → Type[0]             -- substitution 2, 8
+11. (λx. λf. λg. f x) : ∀B. Nat → (Nat → B) → B → B               -- substitution 2, 8, 9
+12. | B : Type[0]                                                 -- subproof hypothesis
+13. | ((∀B. Nat → (Nat → B) → B → B) B) : Type[0]                 -- application 1, 1, 10, 12
+14. | (λx. λf. λg. f x) : (∀B. Nat → (Nat → B) → B → B) B         -- specialization 1, 1, 10, 12, 11
+15. | (Nat → (Nat → B) → B → B) : Type[0]                         -- substitution 1, 13
+16. | (λx. λf. λg. f x) : Nat → (Nat → B) → B → B                 -- substitution 1, 13, 14
+17. | ((Nat → B) → B → B) : Type[0]                               -- function decomposition 15
+18. | ((λx. λf. λg. f x) 3) : (Nat → B) → B → B                   -- application 3, 17, 16, 4
+19. | (Nat → (Nat → B) → B → B) : Type[0],                        -- conjunction 17, 18
+        ((λx. λf. λg. f x) 3) : (Nat → B) → B → B
+20. B : Type[0] ⊢(Nat → (Nat → B) → B → B) : Type[0],             -- subproof 12─19
+      ((λx. λf. λg. f x) 3) : (Nat → B) → B → B
+21. ∀B. (Nat → B) → B → B : Type[0] → Type[0],                    -- generalization 1, 1, 20
+      ((λx. λf. λg. g) 3) : ∀B. (Nat → B) → B → B
 ```
