@@ -60,8 +60,9 @@ f : A → B   e : A
 -- x and y must be variables
 -- f and e must be expressions
 -- A, B and C must be types
-f : A → B    x : A → B, y : A → B ⊢ e : C
-──────────────────────────────────────────
+f : A → B
+x : A → B, y : A → B ⊢ e : C
+─────────────────────────────
 (let (x, y) = f in e) : C
 
 -- pair
@@ -83,7 +84,7 @@ p : (A, B)   x : A, y : B ⊢ e : C
 -- p and e must be expressions
 -- A, B and C must be types
 p : (A → B, A → C)   e : A
-───────────────────────────────
+───────────────────────────
 p e : (B, C)
 
 -- modus ponens

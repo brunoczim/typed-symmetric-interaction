@@ -59,60 +59,84 @@ A : Type[n]   B : Type[n]
 -- A', B' and B must be types
 -- A must be a variable
 -- t must be a typable
-A' : Type[n + 1]   B' : Type[n + 1]   A : A' ⊢ B : B', x : B
-──────────────────────────────────────────────────────────────
+A' : Type[n + 1]
+B' : Type[n + 1]
+A : A' ⊢ B : B', x : B
+──────────────────────────────
 (∀A. B) : A' → B', t : (∀A. B)
 
 -- specialization
 -- A', A, B' and B must be types
 -- t must be a typable
-A' : Type[n + 1]   B' : Type[n + 1]   A : A' → B'   B : A'  t : A
-──────────────────────────────────────────────────────────────────
+A' : Type[n + 1]
+B' : Type[n + 1]
+A : A' → B'
+B : A'  t : A
+─────────────────────
 (A B) : B'   t : A B
 
 -- abstraction
 -- x must be a variable
 -- e must be an expression
 -- A and B must be types
-A : Type[0]   B : Type[0]   x : A ⊢ e : B
-──────────────────────────────────────────
+A : Type[0]
+B : Type[0]
+x : A ⊢ e : B
+────────────────
 (λx. e) : A → B
 
 -- application
 -- A and B must be types
 -- f and t must be typables
-A : Type[n]   B : Type[n]   f : A → B   t : A
-──────────────────────────────────────────────
+A : Type[n]
+B : Type[n]
+f : A → B   t : A
+─────────────────
 (f t) : B
 
 -- lambda projection
 -- x and y must be variables
 -- f and e must be expressions
 -- A, B and C must be types
-A : Type[0]   B : Type[0]   C : Type[0]   f : A → B    x : A → B, y : A → B ⊢ e : C
-────────────────────────────────────────────────────────────────────────────────────
+A : Type[0]
+B : Type[0]
+C : Type[0]
+f : A → B
+x : A → B, y : A → B ⊢ e : C
+─────────────────────────────
 (let (x, y) = f in e) : C
 
 -- pair
 -- e and f must be typables
 -- A and B must be types
-A : Type[n]   B: Type[n]   e : A   f : B
-─────────────────────────────────────────
+A : Type[n]
+B : Type[n]
+e : A
+f : B
+───────────────
 (e, f) : (A, B)
 
 -- pair projection
 -- x and y must be variables
 -- p and e must be expressions
 -- A, B and C must be types
-A : Type[0]   B : Type[0]   C : Type[0]   p : (A, B)   x : A, y : B ⊢ e : C
-─────────────────────────────────────────────────────────────────────────────
+A : Type[0]
+B : Type[0]
+C : Type[0]
+p : (A, B)
+x : A, y : B ⊢ e : C
+─────────────────────────
 (let (x, y) = m in e) : C
 
 -- pair application
 -- p and e must be expressions
 -- A, B and C must be types
-A : Type[0]   B : Type[0]   C : Type[0]   p : (A → B, A → C)   e : A
-─────────────────────────────────────────────────────────────────────
+A : Type[0]
+B : Type[0]
+C : Type[0]
+p : (A → B, A → C)
+e : A
+──────────────────
 p e : (B, C)
 
 -- modus ponens
