@@ -35,27 +35,19 @@ proposition ::=
 
 ```
 
-# Predicates and Sets for Deduction Constraints
-
-These properties are necessary only for verifying rules
-and are derived by just observing the syntax of the propositions.
-
-```haskell
-in(proposition, proposition)                 -- is read "P is intensionally in Q"
-
-quantified(type)                             -- quantified type variables of the type
-    quantified(universal ∀A. B) = { A } ∪ quantified(B)
-    quantified(_) = {}
-
-Constants                                    -- the set of all type constants
-```
-
 # Deduction/Typing Rules
 
 ```haskell
 -- type of types
-─────────────────────────────
+─────────────────────
 Type[n] : Type[n + 1]
+
+-- constant
+-- a must be a constant typable
+-- A must be a type
+a is a constant of type A
+──────────────────────────
+a : A
 
 -- function
 -- A and B must be types
@@ -68,7 +60,7 @@ A : Type[n]   B : Type[n]
 -- A must be a variable
 -- t must be a typable
 A' : Type[n + 1]   B' : Type[n + 1]   A : A' ⊢ B : B', x : B
-─────────────────────────────────────────────────────────────
+──────────────────────────────────────────────────────────────
 (∀A. B) : A' → B', t : (∀A. B)
 
 -- specialization

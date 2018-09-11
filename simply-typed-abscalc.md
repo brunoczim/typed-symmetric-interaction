@@ -31,13 +31,16 @@ proposition ::=
 These properties are necessary only for verifying rules
 and are derived by just observing the syntax of the propositions.
 
-```haskell
-in(proposition, proposition)                 -- is read "P is intensionally in Q"
-```
-
 # Deduction/Typing Rules
 
 ```haskell
+-- constant
+-- a must be a constant expression
+-- A must be a type
+a is a constant of type A
+──────────────────────────
+a : A
+
 -- abstraction
 -- x must be a variable
 -- e must be an expression
