@@ -80,6 +80,8 @@ t : A
 -- A', A and B must be types
 -- T must be a type variable
 -- t must be typable and is optional
+-- if T is shadowed by a new quantification over T in A, substitution must stop
+-- if B contains any quantified variable in A, the quantified variable must be renamed
 A' : Type[n + 1]
 ((∀T. A) B) : A'
 t : (∀T. A) B
