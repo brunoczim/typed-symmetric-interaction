@@ -58,16 +58,16 @@ A : Type[n]   B : Type[n]
 -- generalization
 -- A', B' and B must be types
 -- A must be a variable
--- t must be a typable
+-- t must be a typable and is optional
 A' : Type[n + 1]
 B' : Type[n + 1]
-A : A' ⊢ B : B', x : B
-──────────────────────────────
-(∀A. B) : A' → B', t : (∀A. B)
+A : A' ⊢ B : B', t : B
+────────────────────────────────────────────
+(∀A. B) : A' → B', t : ∀A. B
 
 -- specialization
 -- A', A, B' and B must be types
--- t must be a typable
+-- t must be a typable and is optional
 A' : Type[n + 1]
 B' : Type[n + 1]
 A : A' → B'
@@ -75,6 +75,16 @@ B : A'
 t : A
 ─────────────────────
 (A B) : B'   t : A B
+
+-- substitution
+-- A', A and B must be types
+-- T must be a type variable
+-- t must be typable and is optional
+A' : Type[n + 1]
+((∀T. A) B) : A'
+t : (∀T. A) B
+────────────────────────────────────
+(A{ T ↦ B }) : A'   t : A{ T ↦ B }
 
 -- abstraction
 -- x must be a variable
@@ -180,10 +190,47 @@ theorem (λx. x) : ∀A. A → A
 2.  | | x : A                                            -- subproof hypothesis
 3.  | x : A ⊢ x : A                                      -- subproof 2─2
 4.  | (λx. x) : A → A                                    -- abstraction 3
-5.  | A → A                                              -- function
-6.  | A → A, (λx. x) : A → A                             -- conjunction 5, 4
-7.  A : Type[0] ⊢ (λx. x) : A → A                        -- subproof 1─6
+5.  | A → A : Type[0]                                    -- function 1, 1
+6.  | A → A : Type[0], (λx. x) : A → A                   -- conjunction 5, 4
+7.  A : Type[0] ⊢ A → A : Type[0], (λx. x) : A → A       -- subproof 1─6
 8.  Type[0] : Type[1]                                    -- type of types
 9.  ∀A. A → A : Type[0] → Type[0], (λx. x) : ∀A. A → A   -- generalization 8, 8, 7
 10. (λx. x) : ∀A. A → A                                  -- simplification 9
+```
+
+## Maybe functor
+
+### Just
+```haskell
+theorem (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B
+────────────────────────────────────────────────────────
+1.  Type[0] : Type[1]                                             -- type of types
+2.  | A : Type[0]                                                 -- subproof hypothesis
+3.  | | B : Type[0]                                               -- subproof hypothesis
+4.  | | | x : A                                                   -- subproof hypothesis
+5.  | | | | f : A → B                                             -- subproof hypothesis
+6.  | | | | | g : B                                               -- subproof hypothesis
+7.  | | | | | (f x) : B                                           -- application 5, 4
+8.  | | | | g : B ⊢ (f x) : B                                     -- subproof 6─7
+9.  | | | | (λg. f x) : B → B                                     -- abstraction 8
+10. | | | f : A → B ⊢ (λg. f x) : B → B                           -- subproof 5─9
+11. | | | (λf. λg. f x) : (A → B) → B → B                         -- abstraction 10
+12. | | x : A ⊢ (λf. λg. f x) : (A → B) → B → B                   -- subproof 4─11
+13. | | (λx. λf. λg. f x) : A → (A → B) → B → B                   -- abstraction 12
+14. | | (A → B) : Type[0]                                         -- function 2, 3
+15. | | (B → B) : Type[0]                                         -- function 3, 3
+16. | | ((A → B) → B → B) : Type[0]                               -- function 14, 15
+17. | | (A → (A → B) → B → B) : Type[0]                           -- function 2, 16
+18. | | (A → (A → B) → B → B) : Type[0],
+          (λx. λf. λg. f x) : A → (A → B) → B → B                 -- conjunction 17, 13
+19. | B : Type[0] ⊢ (A → (A → B) → B → B) : Type[0],
+        (λx. λf. λg. f x) : A → (A → B) → B → B                   -- subproof 3─18
+20. | (∀B. A → (A → B) → B → B) : Type[0] → Type[0],
+        (λx. λf. λg. f x) : ∀B. A → (A → B) → B → B               -- generalization 1, 1, 19
+21. A : Type[0] ⊢ (∀B. A → (A → B) → B → B) : Type[0] → Type[0],
+      (λx. λf. λg. f x) : ∀B. A → (A → B) → B → B                 -- subproof 2─20
+22. Type[0] → Type[0] : Type[1]                                   -- function 1, 1
+22. (∀A. ∀B. A → (A → B) → B → B) : Type[0] → Type[0] → Type[0],
+      (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B             -- generalization 1, 22, 21
+23. (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B               -- simplification 22
 ```
