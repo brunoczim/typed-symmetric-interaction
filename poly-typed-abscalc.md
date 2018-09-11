@@ -209,7 +209,7 @@ theorem (λx. x) : ∀A. A → A
 1.  | A : Type[0]                                        -- subproof hypothesis
 2.  | | x : A                                            -- subproof hypothesis
 3.  | x : A ⊢ x : A                                      -- subproof 2─2
-4.  | (λx. x) : A → A                                    -- abstraction 3
+4.  | (λx. x) : A → A                                    -- abstraction 1, 1, 3
 5.  | A → A : Type[0]                                    -- function 1, 1
 6.  | A → A : Type[0], (λx. x) : A → A                   -- conjunction 5, 4
 7.  A : Type[0] ⊢ A → A : Type[0], (λx. x) : A → A       -- subproof 1─6
