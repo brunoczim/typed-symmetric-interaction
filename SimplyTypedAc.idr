@@ -2,14 +2,17 @@ module SimplyTypedAc
 
 import Data.Vect
 
+public export
 data Ty : Type where
   Fun   : Ty -> Ty -> Ty
   Prod  : Ty -> Ty -> Ty
   Const : Type -> Ty
 
+public export
 data Sym : Type where
   Ident : String -> Ty -> Sym
 
+public export
 data Term : Vect n Sym -> Ty -> Type where
   Var     : Elem (Ident _ a) xs -> Term xs a
   Lam     : Elem (Ident _ a) xs -> Term xs b -> Term xs (Fun a b)

@@ -20,7 +20,7 @@ expression ::=
                                              --      (such as integer literals associated with `Int`)
 
 proposition ::=
-  | expression : type                        -- annotation
+  | expression : type                        -- typing
   | proposition, proposition                 -- conjunction, sequence
   | proposition ⊢ proposition                -- proved material implication, conclusion, entails
 
@@ -38,21 +38,13 @@ in(proposition, proposition)                 -- is read "P is intensionally in Q
 # Deduction/Typing Rules
 
 ```haskell
--- context
--- x must be an expression
--- A must be a type
--- P must be a proposition
-in(x : A, P)
-────────────
-P ⊢ x : A
-
 -- abstraction
 -- x must be a variable
 -- e must be an expression
 -- A and B must be types
 x : A ⊢ e : B
 ───────────────
-(λx. t) : A → B
+(λx. e) : A → B
 
 -- application
 -- f and e must be expressions

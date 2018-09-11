@@ -5,22 +5,16 @@ The scope of quantified type variables, however, is not global,
 and a new quantification with a previously quantified variable
 always shadows the previous quantification.
 
-
 # Syntax
 ```haskell
 type ::=
- | mono                                      -- simple type
- | poly                                      -- polymorphic type
-
-mono ::=
   | A                                        -- variable, constant
-  | mono mono                                -- specialization
-  | mono → mono                              -- function
-  | (mono, mono)                             -- pair
-
-poly ::=
+  | (type, type)                             -- pair
+  | type → type                              -- function
+  | Type[n]                                  -- The type of types from the universe n, where n is
   | ∀T. type                                 -- universal quantification over types
-
+  | type type                                -- specialization
+                                             --   a natural number (with zero first)
 expression ::=
   | x                                        -- variable
   | λx. expression                           -- abstraction, lambda
@@ -30,8 +24,12 @@ expression ::=
   | ...                                      -- -- additional terms associated with type constants
                                              --      (such as integer literals associated with `Int`)
 
+typable ::=
+  | type                                     -- type
+  | expression                               -- expression
+
 proposition ::=
-  | expression : type                        -- annotation
+  | typable : type                           -- typing
   | proposition, proposition                 -- conjunction, sequence
   | proposition ⊢ proposition                -- proved material implication, conclusion, entails
 
@@ -55,73 +53,75 @@ Constants                                    -- the set of all type constants
 # Deduction/Typing Rules
 
 ```haskell
--- context
--- x must be an expression
--- A must be a type
--- P must be a proposition
-in(x : A, P)
-────────────
-P ⊢ x : A
+-- type of types
+─────────────────────────────
+Type[n] : Type[n + 1]
+
+-- function
+-- A and B must be types
+A : Type[n]   B : Type[n]
+─────────────────────────
+(A → B) : Type[n]
+
+-- generalization
+-- A', B' and B must be types
+-- A must be a variable
+-- t must be a typable
+A' : Type[n + 1]   B' : Type[n + 1]   A : A' ⊢ B : B', x : B
+─────────────────────────────────────────────────────────────
+(∀A. B) : A' → B', t : (∀A. B)
+
+-- specialization
+-- A', A, B' and B must be types
+-- t must be a typable
+A' : Type[n + 1]   B' : Type[n + 1]   A : A' → B'   B : A'  t : A
+──────────────────────────────────────────────────────────────────
+(A B) : B'   t : A B
 
 -- abstraction
 -- x must be a variable
 -- e must be an expression
 -- A and B must be types
-x : A ⊢ e : B
-───────────────
-(λx. t) : A → B
+A : Type[0]   B : Type[0]   x : A ⊢ e : B
+──────────────────────────────────────────
+(λx. e) : A → B
 
 -- application
--- f and e must be expressions
 -- A and B must be types
-f : A → B   e : A
-─────────────────
-(f e) : B
+-- f and t must be typables
+A : Type[n]   B : Type[n]   f : A → B   t : A
+──────────────────────────────────────────────
+(f t) : B
 
 -- lambda projection
 -- x and y must be variables
 -- f and e must be expressions
 -- A, B and C must be types
-f : A → B    x : A → B, y : A → B ⊢ e : C
-──────────────────────────────────────────
+A : Type[0]   B : Type[0]   C : Type[0]   f : A → B    x : A → B, y : A → B ⊢ e : C
+────────────────────────────────────────────────────────────────────────────────────
 (let (x, y) = f in e) : C
 
 -- pair
--- e and f must be expressions
+-- e and f must be typables
 -- A and B must be types
-e : A   f : B
-───────────────
+A : Type[n]   B: Type[n]   e : A   f : B
+─────────────────────────────────────────
 (e, f) : (A, B)
 
 -- pair projection
 -- x and y must be variables
 -- p and e must be expressions
 -- A, B and C must be types
-p : (A, B)   x : A, y : B ⊢ e : C
-───────────────────────────────────
+A : Type[0]   B : Type[0]   C : Type[0]   p : (A, B)   x : A, y : B ⊢ e : C
+─────────────────────────────────────────────────────────────────────────────
 (let (x, y) = m in e) : C
 
 -- pair application
 -- p and e must be expressions
 -- A, B and C must be types
-p : (A → B, A → C)   e : A
-───────────────────────────────
+A : Type[0]   B : Type[0]   C : Type[0]   p : (A → B, A → C)   e : A
+─────────────────────────────────────────────────────────────────────
 p e : (B, C)
-
--- generalization
--- x must be an expression
--- T must be a type
--- U must be a type variable
-x : T   U ∉ Constants
-──────────────────────
-x : ∀U. T
-
--- specialization
--- T and V must be types
--- U must be a type variable
-∀U. T   ∀A ∈ quantified(T). ¬in(A, V)
-──────────────────────────────────────
-T{ U ↦ V }
 
 -- modus ponens
 -- P and Q must be propositions
@@ -159,31 +159,14 @@ P ⊢ Q
 ```haskell
 theorem (λx. x) : ∀A. A → A
 ────────────────────────────
-1. | x : A                  -- subproof hypothesis
-2. x : A ⊢ x : A           -- subproof 1─1
-3. (λx. x) : A → A          -- abstraction 2
-4. (λx. x) : ∀A. A → A      -- generalization 3
-```
-
-## Maybe Functor
-```haskell
-JUST := λx. λf. λg. f x : ∀A. ∀B. A → (A → B) → B → B
-NOTHING := λy. λh. λi. i : ∀A. ∀B. A → (A → B) → B → B
-```
-
-```haskell
-theorem (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B
-────────────────────────────────────────────────────────
-1.  | x : A                                              -- subproof hypothesis
-2.  | | f : A → B                                        -- subproof hypothesis
-3.  | | | g : B                                          -- subproof hypothesis
-4.  | | | (f x) : B                                      -- application 2, 1
-5.  | | g : B ⊢ (f x) : B                                -- subproof 3─4
-6.  | | (λg. f x) : B → B                                -- abstraction 5
-7.  | f : A → B ⊢ (λg. f x) : B → B                      -- subproof 2─6
-8.  | (λf. λg. f x) : (A → B) → B → B                    -- abstraction 7
-9.  x : A ⊢ (λf. λg. f x) : (A → B) → B → B              -- subproof 1─8
-10. (λx. λf. λg. f x) : A → (A → B) → B → B              -- abstraction 9
-11. (λx. λf. λg. f x) : ∀B. A → (A → B) → B → B          -- generalization 10
-12. (λx. λf. λg. f x) : ∀A. ∀B. A → (A → B) → B → B      -- generalization 11
+1.  | A : Type[0]                                        -- subproof hypothesis
+2.  | | x : A                                            -- subproof hypothesis
+3.  | x : A ⊢ x : A                                      -- subproof 2─2
+4.  | (λx. x) : A → A                                    -- abstraction 3
+5.  | A → A                                              -- function
+6.  | A → A, (λx. x) : A → A                             -- conjunction 5, 4
+7.  A : Type[0] ⊢ (λx. x) : A → A                        -- subproof 1─6
+8.  Type[0] : Type[1]                                    -- type of types
+9.  ∀A. A → A : Type[0] → Type[0], (λx. x) : ∀A. A → A   -- generalization 8, 8, 7
+10. (λx. x) : ∀A. A → A                                  -- simplification 9
 ```
