@@ -84,3 +84,54 @@ e : A | ξ
 α, (f t) : (B, C) | ξ
 
 ```
+
+# Examples
+
+## (x, (λx. 3) "msg") : (String, Nat)
+
+```haskell
+─────── constant
+"msg" : String
+─────── constant
+"msg" : String
+3 : Nat,
+────────────── variable introduction
+"msg" : String,
+3 : Nat,
+x : String,
+x? : String
+─────────────── exchange
+"msg" : String,
+x : String,
+3 : Nat,
+x? : String
+─────────────── exchange
+"msg" : String,
+x : String,
+x? : String
+3 : Nat,
+─────────────── abstraction
+"msg" : String,
+x : String,
+(λx. 3) : String → Nat
+| x
+────────────────────── exchange
+x : String,
+"msg" : String,
+(λx. 3) : String → Nat
+| x
+────────────────────── exchange
+x : String,
+(λx. 3) : String → Nat
+"msg" : String,
+| x
+────────────────────── application
+x : String,
+((λx. 3) "msg") : Nat
+| x
+────────────────────────────────── pair
+(x, (λx. 3) "msg") : (String, Nat)
+| x
+──────────────────────────────────── finalization
+⊢ (x, (λx. 3) "msg") : (String, Nat)
+```
