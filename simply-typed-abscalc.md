@@ -34,6 +34,16 @@ formula ::=
 ```
 
 # Inference Rules
+
+One of the key features of this type system is:
+Variables have a left assignment value (lval) and a right assingment value (rval) version.
+Also, both lval and rval can only be used once. If you have both lval and rval available,
+they can be discarded. But if one of them is missing, only rval can be discarded.
+
+The lambda argument and the variables defined in let correspond to lval, while the variable
+as an expression correspond to rval. Once a lval is defined, it is put into a declared variable
+list, and cannot be introduced once again.
+
 ```haskell
 α, P, Q, β | ξ
 ─────────────── exchange
@@ -69,11 +79,11 @@ e : A | ξ
 
 α, x? : A → B, y? : B → B, t : A → B, u : C | ξ
 ─────────────────────────────────────────────── lambda projection
-α, (let (x, y) = t in u) : C | ξ
+α, (let (x, y) = t in u) : C | x, y, ξ
 
 α, x? : A, y? : B, t : (A, B), u : C | ξ
 ──────────────────────────────────────── pair projection
-α, (let (x, y) = t in u) : C | ξ
+α, (let (x, y) = t in u) : C | x, y, ξ
 
 α, f : A → B, t : A | ξ
 ─────────────────────── application
