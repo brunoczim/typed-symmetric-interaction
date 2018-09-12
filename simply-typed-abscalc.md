@@ -29,7 +29,7 @@ declared list ::=
     | x, declared list                         -- variable
 
 formula ::=
-    | binding list \| declared list            -- in progress
+    | declared list \| binding list            -- proof in progress
     | ⊢ expression : type                      -- proved
 ```
 
@@ -49,49 +49,49 @@ list, and cannot be introduced once again.
 ─────────────── exchange
 α, Q, P, β | ξ
 
-e : A | ξ
+ξ | e : A
 ────────── finalization
 ⊢ e : A
 
-α, c is a constant of type A | ξ
-──────────────────────────────── constant
-α, c : A | ξ
+ξ | α   c is a constant of type A
+────────────────────────────────── constant
+ξ | α, c : A
 
-α | ξ    ∀T. (x : T) ∉ α   ∀T. (x? : T) ∉ α   x ∉ ξ
-──────────────────────────────────────────────────── variable introduction
-α, x? : A, x : A | ξ
+ξ | α   x ∉ ξ   ∀T. (x : T) ∉ α   ∀T. (x? : T) ∉ α
+─────────────────────────────────────────────────── variable introduction
+ξ | α, x? : A, x : A
 
-α, x? : A, x : A | ξ
+ξ | α, x? : A, x : A
 ───────────────────── variable elimination
-α | ξ
+ξ | α
 
-α, x : A | ξ
-──────────── use elimination
-α | ξ
+ξ | α, x : A
+───────────── use elimination
+ξ | α
 
-α, x? : A, t : B | ξ
+ξ | α, x? : A, t : B
 ───────────────────────── abstraction
-α, (λx. t) : A → B | x, ξ
+ξ, x | α, (λx. t) : A → B
 
-α, t : A, u : B | ξ
+ξ | α, t : A, u : B
 ────────────────────── pair
-α, (t, u) : (A, B) | ξ
+ξ | α, (t, u) : (A, B)
 
-α, x? : A → B, y? : B → B, t : A → B, u : C | ξ
-─────────────────────────────────────────────── lambda projection
-α, (let (x, y) = t in u) : C | x, y, ξ
+ξ | α, x? : A → B, y? : A → B, t : A → B, u : C
+──────────────────────────────────────────────── lambda projection
+ξ, x, y | α, (let (x, y) = t in u) : C
 
-α, x? : A, y? : B, t : (A, B), u : C | ξ
-──────────────────────────────────────── pair projection
-α, (let (x, y) = t in u) : C | x, y, ξ
+ξ | α, x? : A, y? : B, t : (A, B), u : C
+───────────────────────────────────────── pair projection
+ξ, x, y | α, (let (x, y) = t in u) : C
 
-α, f : A → B, t : A | ξ
-─────────────────────── application
-α, (f t) : B | ξ
+ξ | α, f : A → B, t : A
+──────────────────────── application
+ξ | α, (f t) : B
 
-α, f : (A → B, A → C), t : A | ξ
-──────────────────────────────── pair application
-α, (f t) : (B, C) | ξ
+ξ | α, f : (A → B, A → C), t : A
+───────────────────────────────── pair application
+ξ | α, (f t) : (B, C)
 
 ```
 
@@ -132,4 +132,34 @@ x : String,
 | x
 ──────────────────────────────────── finalization
 ⊢ (x, (λx. 3) "msg") : (String, Nat)
+```
+
+## Recursion
+Objective:
+```haskell
+(let (isEvenDef, isOddDef) = (
+    λn. let (n0, n1) = n in if n0 == 0
+        then true
+        else isOdd (n1 - 1),
+    λm. let (m0, m1) = m in if m0 == 0
+        then false
+        else isEven (m1 - 1)) in
+let (isEven, isEvenRec) = isEvenDef in
+let (isOdd, isOddRec) = isOddDef in
+(isEven 4, isOdd 4))
+```
+
+Additional Rules:
+```haskell
+ξ | α, n : Nat, m : Nat
+──────────────────────── equality
+ξ | α, (n == m) : Bool
+
+ξ | α, b : Bool, t : A, u : A
+───────────────────────────── conditional
+ξ | α, if b then t else u
+
+ξ | α, n : Nat, m : Nat
+──────────────────────── subtraction
+ξ | α, (n - m) : Nat
 ```
