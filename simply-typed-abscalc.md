@@ -8,7 +8,7 @@ As in the original ac, variables can only be used once and are global.
 type ::=
     | A                                        -- constant
     | type → type                              -- function
-    | (type, type)                             -- pair
+    | type ⨯ type                              -- pair
 
 expression ::=
     | x                                        -- variable
@@ -23,6 +23,7 @@ binding list ::=
     | ∅                                        -- empty (can be omitted)
     | expression : type, binding list          -- typing
     | x? : type, binding list                  -- declarable variable
+    | P(x, y, z, ...)                          -- predicate
 
 declared list ::=
     | ∅                                        -- empty (can be omitted)
@@ -45,53 +46,107 @@ as an expression correspond to rval. Once a lval is defined, it is put into a de
 list, and cannot be introduced once again.
 
 ```haskell
+-- exchange
+
 ξ | α, P, Q, β
-─────────────── exchange
+─────────────── X,X
 ξ | α, Q, P, β
 
+
+-- finalization
+
 ξ | e : A
-────────── finalization
+────────── FIN
 ⊢ e : A
 
+
+-- constant
+
 ξ | α   c is a constant of type A
-────────────────────────────────── constant
+────────────────────────────────── CONST
 ξ | α, c : A
 
+
+-- variable introduction
+
 ξ | α   x ∉ ξ   ∀T. (x : T) ∉ α   ∀T. (x? : T) ∉ α
-─────────────────────────────────────────────────── variable introduction
+─────────────────────────────────────────────────── +VAR
 ξ | α, x? : A, x : A
 
+
+-- variable elimination
+
 ξ | α, x? : A, x : A
-───────────────────── variable elimination
+───────────────────── -VAR
 ξ | α
+
+
+-- use elimination
 
 ξ | α, x : A
-───────────── use elimination
+───────────── -USE
 ξ | α
 
+
+-- abstraction/lambda
+
 ξ | α, x? : A, t : B
-───────────────────────── abstraction
+────────────────────────── LAM
 ξ, x | α, (λx. t) : A → B
 
+
+-- pair/product/tuple
+
 ξ | α, t : A, u : B
-────────────────────── pair
-ξ | α, (t, u) : (A, B)
+────────────────────── PAIR
+ξ | α, (t, u) : A ⨯ B
 
-ξ | α, x? : A → B, y? : A → B, t : A → B, u : C
-──────────────────────────────────────────────── lambda projection
-ξ, x, y | α, (let (x, y) = t in u) : C
 
-ξ | α, x? : A, y? : B, t : (A, B), u : C
-───────────────────────────────────────── pair projection
-ξ, x, y | α, (let (x, y) = t in u) : C
+-- projectable pair instance
 
-ξ | α, f : A → B, t : A
-──────────────────────── application
-ξ | α, (f t) : B
+ξ | α,
+────────────────────────  PPI
+ξ | α, Proj(A ⨯ B, A, B)
 
-ξ | α, f : (A → B, A → C), t : A
-───────────────────────────────── pair application
-ξ | α, (f t) : (B, C)
+
+-- projectable lambda instance
+
+ξ | α, Proj(C, D, E)
+────────────────────────────────────  PLI
+ξ | α, Proj(A ⨯ B → C, A → D, B → E)
+
+
+-- projection
+
+ξ | α,
+    Proj(A, B, C),
+    x? : B,
+    y? : C,
+    p : A,
+    t : T
+─────────────────────────────────────── PROJ
+ξ, x, y | α, (let (x, y) = p in t) : T
+
+
+-- applicable lambda instance
+
+ξ | α
+──────────────────────── ALI
+ξ | α, App(A → B, A, B)
+
+
+-- applicable pair instance
+
+ξ | α, App(A, C, D), App(B, C, E)
+───────────────────────────────── API
+ξ | α, App(A ⨯ B, C, D ⨯ E)
+
+
+-- application
+
+ξ | α, App(A, B, C), f : A, e : B
+───────────────────────────────── APP
+ξ | α, (f t) : C
 
 ```
 
@@ -104,32 +159,43 @@ Begin proving the inner-left most expression
 Objective: `(x, (λx. 3) "msg") : (String, Nat)`
 
 ```haskell
-────────── variable introduction
+────────── +VAR
 x? : String,
 x : String
-───────── exchange
+─────────── X,X
 x : String,
 x? : String
-───────── constant
+─────────── ALI
 x : String,
 x? : String,
+App(String → Nat, String, Nat)
+─────────────────────────────── X, X
+x : String,
+App(String → Nat, String, Nat),
+x? : String
+─────────────────────────────── CONST
+x : String,
+App(String → Nat, String, Nat),
+x? : String,
 3 : Nat
-────────────────────── abstraction
+─────────────────────────────── LAM
 x |
 x : String,
+App(String → Nat, String, Nat),
 (λx. 3) : String → Nat
-────────────────────── constant
+─────────────────────────────── CONST
 x |
 x : String,
+App(String → Nat, String, Nat),
 (λx. 3) : String → Nat,
 "msg" : String
-────────────────────── application
+─────────────────────────────── APP
 x |
 x : String,
 ((λx. 3) "msg") : Nat
-─────────────────────────────────── pair
+─────────────────────────────────── PAIR
 x |
 (x, (λx. 3) "msg") : (String, Nat)
-──────────────────────────────────── finalization
+──────────────────────────────────── FIN
 ⊢ (x, (λx. 3) "msg") : (String, Nat)
 ```
