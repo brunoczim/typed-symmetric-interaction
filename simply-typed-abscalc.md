@@ -45,9 +45,9 @@ as an expression correspond to rval. Once a lval is defined, it is put into a de
 list, and cannot be introduced once again.
 
 ```haskell
-α, P, Q, β | ξ
+ξ | α, P, Q, β
 ─────────────── exchange
-α, Q, P, β | ξ
+ξ | α, Q, P, β
 
 ξ | e : A
 ────────── finalization
