@@ -133,33 +133,3 @@ x : String,
 ──────────────────────────────────── finalization
 ⊢ (x, (λx. 3) "msg") : (String, Nat)
 ```
-
-## Recursion
-Objective:
-```haskell
-(let (isEvenDef, isOddDef) = (
-    λn. let (n0, n1) = n in if n0 == 0
-        then true
-        else isOdd (n1 - 1),
-    λm. let (m0, m1) = m in if m0 == 0
-        then false
-        else isEven (m1 - 1)) in
-let (isEven, isEvenRec) = isEvenDef in
-let (isOdd, isOddRec) = isOddDef in
-(isEven 4, isOdd 4))
-```
-
-Additional Rules:
-```haskell
-ξ | α, n : Nat, m : Nat
-──────────────────────── equality
-ξ | α, (n == m) : Bool
-
-ξ | α, b : Bool, t : A, u : A
-───────────────────────────── conditional
-ξ | α, if b then t else u
-
-ξ | α, n : Nat, m : Nat
-──────────────────────── subtraction
-ξ | α, (n - m) : Nat
-```
