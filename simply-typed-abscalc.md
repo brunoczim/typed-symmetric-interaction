@@ -115,21 +115,21 @@ x : String,
 x? : String,
 3 : Nat
 ────────────────────── abstraction
+x |
 x : String,
 (λx. 3) : String → Nat
-| x
 ────────────────────── constant
+x |
 x : String,
 (λx. 3) : String → Nat,
 "msg" : String
-| x
 ────────────────────── application
+x |
 x : String,
 ((λx. 3) "msg") : Nat
-| x
 ─────────────────────────────────── pair
-(x, (λx. 3) "msg") : (String, Nat),
-| x
+x |
+(x, (λx. 3) "msg") : (String, Nat)
 ──────────────────────────────────── finalization
 ⊢ (x, (λx. 3) "msg") : (String, Nat)
 ```
