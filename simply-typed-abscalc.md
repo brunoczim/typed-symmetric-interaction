@@ -49,9 +49,9 @@ e : A | ξ
 
 α | ξ    ∀T. (x : T) ∉ α   ∀T. (x? : T) ∉ α   x ∉ ξ
 ──────────────────────────────────────────────────── variable introduction
-α, x : A, x? : A | ξ
+α, x? : A, x : A | ξ
 
-α, x : A, x? : A | ξ
+α, x? : A, x : A | ξ
 ───────────────────── variable elimination
 α | ξ
 
@@ -85,52 +85,40 @@ e : A | ξ
 
 ```
 
+# Tips
+Begin proving the inner-left most expression
+
 # Examples
 
-## (x, (λx. 3) "msg") : (String, Nat)
+## Use before declare
+Objective: `(x, (λx. 3) "msg") : (String, Nat)`
 
 ```haskell
-─────── constant
-"msg" : String
-─────── constant
-"msg" : String
-3 : Nat,
-────────────── variable introduction
-"msg" : String,
-3 : Nat,
+────────── variable introduction
+x? : String,
+x : String
+───────── exchange
 x : String,
 x? : String
-─────────────── exchange
-"msg" : String,
+───────── constant
 x : String,
-3 : Nat,
-x? : String
-─────────────── exchange
-"msg" : String,
-x : String,
-x? : String
-3 : Nat,
-─────────────── abstraction
-"msg" : String,
+x? : String,
+3 : Nat
+────────────────────── abstraction
 x : String,
 (λx. 3) : String → Nat
 | x
-────────────────────── exchange
+────────────────────── constant
 x : String,
-"msg" : String,
-(λx. 3) : String → Nat
-| x
-────────────────────── exchange
-x : String,
-(λx. 3) : String → Nat
-"msg" : String,
+(λx. 3) : String → Nat,
+"msg" : String
 | x
 ────────────────────── application
 x : String,
 ((λx. 3) "msg") : Nat
 | x
-────────────────────────────────── pair
-(x, (λx. 3) "msg") : (String, Nat)
+─────────────────────────────────── pair
+(x, (λx. 3) "msg") : (String, Nat),
 | x
 ──────────────────────────────────── finalization
 ⊢ (x, (λx. 3) "msg") : (String, Nat)
