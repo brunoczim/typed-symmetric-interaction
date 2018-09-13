@@ -173,29 +173,25 @@ App(String → Nat, String, Nat)
 x : String,
 App(String → Nat, String, Nat),
 x? : String
-─────────────────────────────── CONST
+──────────────────────────────── CONST
 x : String,
 App(String → Nat, String, Nat),
 x? : String,
 3 : Nat
-─────────────────────────────── LAM
-x |
-x : String,
-App(String → Nat, String, Nat),
-(λx. 3) : String → Nat
-─────────────────────────────── CONST
-x |
-x : String,
-App(String → Nat, String, Nat),
-(λx. 3) : String → Nat,
-"msg" : String
-─────────────────────────────── APP
-x |
-x : String,
-((λx. 3) "msg") : Nat
-─────────────────────────────────── PAIR
-x |
-(x, (λx. 3) "msg") : (String, Nat)
-──────────────────────────────────── FIN
+──────────────────────────────────── LAM
+x | x : String,
+    App(String → Nat, String, Nat),
+    (λx. 3) : String → Nat
+─────────────────────────────────── CONST
+x | x : String,
+    App(String → Nat, String, Nat),
+    (λx. 3) : String → Nat,
+    "msg" : String
+─────────────────────────────────── APP
+x | x : String,
+    ((λx. 3) "msg") : Nat
+────────────────────────────────────── PAIR
+x | (x, (λx. 3) "msg") : (String, Nat)
+────────────────────────────────────── FIN
 ⊢ (x, (λx. 3) "msg") : (String, Nat)
 ```
