@@ -9,6 +9,7 @@ type ::=
     | A                                        -- constant
     | type → type                              -- function
     | type ⨯ type                              -- pair
+    | type*                                    -- repetition
 
 expression ::=
     | x                                        -- variable
@@ -113,7 +114,15 @@ list, and cannot be introduced once again.
 
 ξ | α, Proj(C, D, E)
 ────────────────────────────────────  PLI
+ξ | α, Proj(A* → C, A → D, A* → E)
+
+
+-- projectable lambda instance
+
+ξ | α, Proj(C, D, E)
+────────────────────────────────────  PLI
 ξ | α, Proj(A ⨯ B → C, A → D, B → E)
+
 
 
 -- projection
@@ -156,8 +165,12 @@ Begin proving the inner-left most expression
 # Examples
 
 ## Use before declare
-Objective: `(x, (λx. 3) "msg") : (String, Nat)`
+Objective:
+```haskell
+(x, (λx. 3) "msg") : String ⨯ Nat
+```
 
+Proof:
 ```haskell
 ────────── +VAR
 x? : String,
@@ -191,7 +204,7 @@ x | x : String,
 x | x : String,
     ((λx. 3) "msg") : Nat
 ────────────────────────────────────── PAIR
-x | (x, (λx. 3) "msg") : (String, Nat)
+x | (x, (λx. 3) "msg") : String ⨯ Nat
 ────────────────────────────────────── FIN
-⊢ (x, (λx. 3) "msg") : (String, Nat)
+⊢ (x, (λx. 3) "msg") : String ⨯ Nat
 ```
