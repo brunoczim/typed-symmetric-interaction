@@ -114,13 +114,6 @@ list, and cannot be introduced once again.
 
 ξ | α, Proj(C, D, E)
 ────────────────────────────────────  PLI
-ξ | α, Proj(A* → C, A → D, A* → E)
-
-
--- projectable lambda instance
-
-ξ | α, Proj(C, D, E)
-────────────────────────────────────  PLI
 ξ | α, Proj(A ⨯ B → C, A → D, B → E)
 
 
