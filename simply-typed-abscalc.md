@@ -9,7 +9,6 @@ type ::=
     | A                                        -- constant
     | type → type                              -- function
     | type ⨯ type                              -- pair
-    | type*                                    -- repetition
 
 expression ::=
     | x                                        -- variable
