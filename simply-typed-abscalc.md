@@ -176,7 +176,6 @@ x? : String,
 3 : Nat
 ──────────────────────────────────── LAM
 x | x : String,
-    App(String → Nat, String, Nat),
     (λx. 3) : String → Nat
 ─────────────────────────────────── CONST
 x | x : String,
@@ -206,7 +205,7 @@ Objective:
 
 Proof:
 ```haskell
-────────── +VAR
+────────────────────── +VAR
 f? : (A ⨯ A → A ⨯ A),
 f : (A ⨯ A → A ⨯ A)
 ────────────────────── +VAR
