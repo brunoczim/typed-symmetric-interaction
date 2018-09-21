@@ -120,11 +120,11 @@ list, and cannot be introduced once again.
 -- projection
 
 ξ | α,
-    Proj(A, B, C),
     x? : B,
     y? : C,
     p : A,
-    t : T
+    t : T,
+    Proj(A, B, C)
 ─────────────────────────────────────── PROJ
 ξ, x, y | α, (let (x, y) = p in t) : T
 
@@ -145,7 +145,7 @@ list, and cannot be introduced once again.
 
 -- application
 
-ξ | α, App(A, B, C), f : A, e : B
+ξ | α, f : A, e : B, App(A, B, C)
 ───────────────────────────────── APP
 ξ | α, (f t) : C
 
@@ -170,17 +170,8 @@ x : String
 ─────────── X,X
 x : String,
 x? : String
-─────────── ALI
-x : String,
-x? : String,
-App(String → Nat, String, Nat)
-─────────────────────────────── X, X
-x : String,
-App(String → Nat, String, Nat),
-x? : String
 ──────────────────────────────── CONST
 x : String,
-App(String → Nat, String, Nat),
 x? : String,
 3 : Nat
 ──────────────────────────────────── LAM
@@ -189,9 +180,13 @@ x | x : String,
     (λx. 3) : String → Nat
 ─────────────────────────────────── CONST
 x | x : String,
-    App(String → Nat, String, Nat),
     (λx. 3) : String → Nat,
-    "msg" : String
+    "msg" : String,
+─────────────────────────────────── ALI
+x | x : String,
+    (λx. 3) : String → Nat,
+    "msg" : String,
+    App(String → Nat, String, Nat)
 ─────────────────────────────────── APP
 x | x : String,
     ((λx. 3) "msg") : Nat
@@ -199,4 +194,170 @@ x | x : String,
 x | (x, (λx. 3) "msg") : String ⨯ Nat
 ────────────────────────────────────── FIN
 ⊢ (x, (λx. 3) "msg") : String ⨯ Nat
+```
+
+## Two Function
+Objective:
+```haskell
+(λf. λx.
+    let (f0, f1) = f in
+    f0 (f1 x)) : (A ⨯ A → A ⨯ A) → A → A
+```
+
+Proof:
+```haskell
+────────── +VAR
+f? : (A ⨯ A → A ⨯ A),
+f : (A ⨯ A → A ⨯ A)
+────────────────────── +VAR
+f? : (A ⨯ A → A ⨯ A),
+f : (A ⨯ A → A ⨯ A),
+x? : A,
+x : A
+────────────────────── X,X
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+x : A
+────────────────────── +VAR
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+x : A,
+f0? : A → A,
+f0 : A → A
+────────────────────── +VAR
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+x : A,
+f0? : A → A,
+f0 : A → A,
+f1? : A → A,
+f1 : A → A
+────────────────────── X,X
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+x : A,
+f0 : A → A,
+f1? : A → A,
+f1 : A → A
+────────────────────── X,X
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+f0 : A → A,
+x : A,
+f1? : A → A,
+f1 : A → A
+────────────────────── X,X
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+f0 : A → A,
+f1? : A → A,
+x : A,
+f1 : A → A
+────────────────────── X,X
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+f0 : A → A,
+f1? : A → A,
+f1 : A → A,
+x : A
+────────────────────── ALI
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+f0 : A → A,
+f1? : A → A,
+f1 : A → A,
+x : A,
+App(A → A, A, A)
+────────────────────── APP
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+f0 : A → A,
+f1? : A → A,
+(f1 x) : A,
+────────────────────── X,X
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+f1? : A → A,
+f0 : A → A,
+(f1 x) : A
+────────────────────── ALI
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+f1? : A → A,
+f0 : A → A,
+(f1 x) : A,
+App(A → A, A, A)
+────────────────────── APP
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f : (A ⨯ A → A ⨯ A),
+f0? : A → A,
+f1? : A → A,
+(f0 (f1 x)) : A
+────────────────────── X,X
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f0? : A → A,
+f : (A ⨯ A → A ⨯ A),
+f1? : A → A,
+(f0 (f1 x)) : A
+────────────────────── X,X
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f0? : A → A,
+f1? : A → A,
+f : (A ⨯ A → A ⨯ A),
+(f0 (f1 x)) : A
+────────────────────── PPI
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f0? : A → A,
+f1? : A → A,
+f : (A ⨯ A → A ⨯ A),
+(f0 (f1 x)) : A,
+Proj(A ⨯ A, A, A)
+─────────────────────────────────── PLI
+f? : (A ⨯ A → A ⨯ A),
+x? : A,
+f0? : A → A,
+f1? : A → A,
+f : (A ⨯ A → A ⨯ A),
+(f0 (f1 x)) : A,
+Proj(A ⨯ A → A ⨯ A, A → A, A → A)
+────────────────────────────────────────────── PROJ
+f0, | f? : (A ⨯ A → A ⨯ A),
+f1  | x? : A,
+      (let (f0, f1) = f in f0 (f1 x)) : A,
+────────────────────────────────────────────── LAM
+f0, | f? : (A ⨯ A → A ⨯ A),
+f1, | (λx. let (f0, f1) = f in
+x   |     f0 (f1 x)) : A → A
+────────────────────────────────────────────── LAM
+f0, | (λf. λx.
+f1, |      let (f0, f1) = f in
+x   |      f0 (f1 x)) : (A ⨯ A → A ⨯ A),
+f   |
+───────────────────────────────────────────── FIN
+⊢ (λf. λx.
+      let (f0, f1) = f in
+      f0 (f1 x)) : (A ⨯ A → A ⨯ A) → A → A
 ```
